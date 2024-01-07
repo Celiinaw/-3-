@@ -31,121 +31,23 @@ def save_cooldowns(cooldowns):
 # Load cooldowns when the bot starts
 free_cooldowns = load_cooldowns()
 
+server_name = "Your Server Name"
+server_logo = "https://your-server-logo-url.com"
+
 @bot.event
 async def on_ready():
     await bot.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.playing, name=server_name))
     print("Running")
 
-@bot.slash_command(name="fgen", description="Free Generate")
-async def gen(inter, stock):
-    user = inter.user
-    user_id = inter.user.id
-
-    # Set cooldown to 7 minutes for the "fgen" command
-    cooldown_duration = 420
-
-    if user_id in free_cooldowns and "fgen" in free_cooldowns[user_id]:
-        remaining_cooldown = free_cooldowns[user_id]["fgen"]
-        embed = nextcord.Embed(
-            title="Cooldown",
-            description=f"You still have {remaining_cooldown} seconds remaining.",
-            color=custom_color
-        )
-        await inter.send(embed=embed, ephemeral=True)
-        return
-    if inter.channel.id != free_gen_channel:
-        embed = nextcord.Embed(
-            title=f"Wrong Channel! Use <#{free_gen_channel}>",
-            color=custom_color
-        )
-        await inter.send(embed=embed, ephemeral=True)
-        return
-
-    stock_color = custom_color
-    stock = stock.lower() + ".txt"
-    if stock not in os.listdir("freestock//"):
-        embed = nextcord.Embed(
-            title="The stock that you are trying to generate does not exist.",
-            color=custom_color
-        )
-        await inter.send(embed=embed, ephemeral=True)
-        return
-
-    with open(f"freestock//{stock}") as file:
-        lines = file.read().splitlines()
-        if len(lines) == 0:
-            embed = nextcord.Embed(
-                title="Out of stock!",
-                description="Please wait until we restock.",
-                color=custom_color
-            )
-            await inter.send(embed=embed, ephemeral=True)
-            return
-
-    account = random.choice(lines)
-    combo = account.split(':')
-    User = combo[0]
-    Pass = combo[1]
-    Password = Pass.rstrip()
-
-    try:
-        await user.send(embed=nextcord.Embed(
-            title=server_name,
-            color=stock_color
-        ).set_footer(
-            text=f"{server_name}",
-            icon_url=server_logo
-        ).set_thumbnail(
-            url=server_logo
-        ).add_field(
-            name="Username:",
-            value=f"```{str(User)}```"
-        ).add_field(
-            name="Password:",
-            value=f"```{str(Password)}```"
-        ).add_field(
-            name="Combo:",
-            value=f"```{str(User)}:{str(Password)}```",
-            inline=False
-        ))
-    except nextcord.errors.Forbidden:
-        embed = nextcord.Embed(
-            title="DMs Closed!",
-            description="I cannot send messages to you. Please make sure your DMs are open.",
-            color=0xff0000  # Red color for error
-        )
-        await inter.send(embed=embed, ephemeral=True)
-        return
-
-    name = (stock[0].upper() + stock[1:].lower()).replace(".txt", "")
-
-    embed1 = nextcord.Embed(
-        title=f" <:emoji_3:1185233432645742592> {name} Account Generated!",
-        description="> Check your DMs for your account.",
-        color=0x3ba55d  # Green color for success
-    )
-    embed1.set_footer(text=f"{server_name}", icon_url=server_logo)
-    embed1.set_thumbnail(url=server_logo)
-    await inter.send(embed=embed1)
-    lines.remove(account)
-    with open(f"freestock//{stock}", "w", encoding='utf-8') as file:
-        file.write("\n".join(lines))
-
-    # Set cooldown for "fgen" command
-    free_cooldowns.setdefault(user_id, {})["fgen"] = cooldown_duration
-
-    # Save cooldowns to the JSON file
-    save_cooldowns(free_cooldowns)
-
-    await asyncio.sleep(1)
-    while free_cooldowns[user_id]["fgen"] > 0:
-        free_cooldowns[user_id]["fgen"] -= 1
-        await asyncio.sleep(1)
-
-    del free_cooldowns[user_id]["fgen"]
-
 @bot.slash_command(name="egen", description="Exclusive Generate")
-async def exclusive_gen(inter, stock):
+async def exclusive_gen(inter, stock: nextcord.ApplicationCommandOptionChoice(choices={
+    "Roblox 2023": "Roblox2023.txt",
+    "Roblox 2010": "Roblox2010.txt",
+    "Roblox Realistic": "RobloxRealistic.txt",
+    "Valorant": "Valorant.txt",
+    "Steam": "Steam.txt",
+    "EpicGames": "EpicGames.txt"
+})):
     user = inter.user
     user_id = inter.user.id
 
@@ -170,8 +72,8 @@ async def exclusive_gen(inter, stock):
         return
 
     stock_color = custom_color
-    stock = stock.lower() + ".txt"
-    if stock not in os.listdir("freestock//"):
+    stock_file = stock.lower()
+    if not os.path.isfile(f"{stock_file}.txt"):
         embed = nextcord.Embed(
             title="The stock that you are trying to generate does not exist.",
             color=custom_color
@@ -179,7 +81,7 @@ async def exclusive_gen(inter, stock):
         await inter.send(embed=embed, ephemeral=True)
         return
 
-    with open(f"freestock//{stock}") as file:
+    with open(f"{stock_file}.txt") as file:
         lines = file.read().splitlines()
         if len(lines) == 0:
             embed = nextcord.Embed(
@@ -225,7 +127,7 @@ async def exclusive_gen(inter, stock):
         await inter.send(embed=embed, ephemeral=True)
         return
 
-    name = (stock[0].upper() + stock[1:].lower()).replace(".txt", "")
+    name = stock_file.capitalize().replace(".txt", "")
 
     embed1 = nextcord.Embed(
         title=f" <:emoji_3:1185233432645742592> {name} Account Generated!",
@@ -236,7 +138,7 @@ async def exclusive_gen(inter, stock):
     embed1.set_thumbnail(url=server_logo)
     await inter.send(embed=embed1)
     lines.remove(account)
-    with open(f"freestock//{stock}", "w", encoding='utf-8') as file:
+    with open(f"{stock_file}.txt", "w", encoding='utf-8') as file:
         file.write("\n".join(lines))
 
     # Set cooldown for "egen" command
