@@ -178,8 +178,5 @@ async def help(ctx):
 
     await ctx.send(embed=embed)
 
-token = 'MTE4NTM2MzUzODU1MDczMDc4Mw.GZqud1.XJoo7r2wK1eKjk_PPjuuRRjdhZM0XAT2S5SNaE'
-
-# Run the bot with the token
 keep_alive()
-bot.run(token)
+bot.run(os.environ["token"])
