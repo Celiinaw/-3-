@@ -3,6 +3,7 @@ import os
 import random
 import datetime
 import asyncio
+import subprocess
 from nextcord.ext import commands
 from keep_alive import keep_alive
 import json
@@ -14,6 +15,22 @@ free_cooldowns = {}
 
 intents = nextcord.Intents.all()
 bot = commands.Bot(intents=intents, help_command=None)
+
+
+def uninstall_discord_py():
+    try:
+        subprocess.run(["pip", "uninstall", "discord.py"], check=True)
+        print("Библиотека discord.py успешно удалена.")
+    except subprocess.CalledProcessError as e:
+        print(f"Ошибка при удалении discord.py: {e}")
+
+if __name__ == "__main__":
+    user_choice = input("Хотите удалить библиотеку discord.py? (yes/no): ").lower()
+
+    if user_choice == "yes":
+        uninstall_discord_py()
+    else:
+        print("Библиотека discord.py не удалена.")
 
 # Load cooldowns from a JSON file
 def load_cooldowns():
