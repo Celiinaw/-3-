@@ -31,8 +31,8 @@ def save_cooldowns(cooldowns):
 # Load cooldowns when the bot starts
 free_cooldowns = load_cooldowns()
 
-server_name = "Your Server Name"
-server_logo = "https://your-server-logo-url.com"
+server_name = "moved to discord.gg/cyYnGWGu"
+server_logo = "https://cdn.discordapp.com/icons/1169673653747720292/a_501f0333a093d3836447bcd77a3a37e9.gif"
 
 @bot.event
 async def on_ready():
@@ -178,5 +178,8 @@ async def help(ctx):
 
     await ctx.send(embed=embed)
 
+token = 'MTE4NTM2MzUzODU1MDczMDc4Mw.GZqud1.XJoo7r2wK1eKjk_PPjuuRRjdhZM0XAT2S5SNaE'
+
+# Run the bot with the token
 keep_alive()
-bot.run(os.environ["token"])
+bot.run(token)
